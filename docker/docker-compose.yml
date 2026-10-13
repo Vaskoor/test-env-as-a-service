@@ -1,0 +1,29 @@
+version: "3.8"
+services:
+  wiremock:
+    image: wiremock/wiremock:3.9.1
+    ports: ["8080:8080"]
+    volumes: ["./wiremock:/home/wiremock"]
+  mountebank:
+    image: andyrb/mountebank:2.9.1
+    ports: ["2525:2525","4550-4553:4550-4553"]
+  postgres:
+    image: postgres:16.4
+    ports: ["5432:5432"]
+    environment:
+      POSTGRES_DB: qa_envs
+      POSTGRES_USER: qa
+      POSTGRES_PASSWORD: qa
+    volumes: ["pg-data:/var/lib/postgresql/data"]
+  pact-broker:
+    image: pactfoundation/pact-broker:2.307.0
+    ports: ["9292:9292"]
+    environment:
+      PACT_BAKER_DATABASE_ADAPTER: postgres
+      PACT_BROKER_DATABASE_HOST: postgres
+      PACT_BROKER_DATABASE_NAME: qa_envs
+      PACT_BROKER_DATABASE_USERNAME: qa
+      PACT_BROKER_DATABASE_PASSWORD: qa
+    depends_on: [postgres]
+volumes:
+  pg-data:
